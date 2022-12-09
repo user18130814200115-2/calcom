@@ -56,13 +56,14 @@ recurse() {
 		start=$(printf "%s\n" "${raw}" | head -n 1 | cut -d " " -f 3)
 		data=$(printf "%s\n" "${raw}" | grep "^\t")
 
-		printf "${start}\n${data}\n" >> "${file}"
+		replace="${start}\n${data}\n"
 		for i in $(seq $((${number}-1))); do
-			printf "$((${start%%:} + (${frequency} * ${i}))):\n${data}\n" >> "${file}"
+			replace="${replace}\n$((${start%%:} + (${frequency} * ${i}))):\n${data}\n" >> "${file}"
 		done
 
 		remove=$(printf "%s" "${raw}" | tr "\n" "\r")
-		cat "${file}" | tr "\n" "\r" | sed "s|${remove}||g" | tr "\r" "\n" > "${file}.tmp"
+		new=$(printf "%s" "${replace}" | tr "\n" "\r")
+		cat "${file}" | tr "\n" "\r" | sed "s|${remove}|${new}|g" | tr "\r" "\n" > "${file}.tmp"
 		mv "${file}.tmp" "${file}"
 		recurse
 	fi
@@ -83,3 +84,4 @@ cp "${file}" ".${file}.working"
 file=".${file}.working"
 recurse
 rm "${file}"
+
