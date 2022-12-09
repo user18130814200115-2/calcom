@@ -1,0 +1,85 @@
+#!/bin/sh
+
+file="${1}"
+tmpdir="/tmp/calcom"
+
+parse() {
+	head=$(head -n 1 "${file}")
+	max=$(date -d "1 ${head} + 1 month - 1 day" +%d)
+	first=$(date -d "1 ${head}" +%u)
+
+	month=$(date -d "1 ${head}" +"%B")
+	year=$(date -d "1 ${head}" +"%Y")
+
+	printf "\\\\documentclass[10pt]{article}\n\\\\usepackage{calendar}\n\\\\usepackage[landscape, a4paper, margin=1cm]{geometry}\n\\\\usepackage{palatino}\n\\\\begin{document}\n\\\\pagestyle{empty}\n\\\\setlength{\\\\parindent}{0pt}\n\\\\StartingDayNumber=2\n\\\\begin{center}\n\\\\textsc{\\\\LARGE ${month}}\n\\\\textsc{\\\\large ${year}}\n\\\\end{center}\n\\\\begin{calendar}{\\\\textwidth}"
+
+
+
+	for i in $(seq $((${first}-1))); do
+		printf "\\BlankDay\n"
+	done
+
+	printf "\\setcounter{calendardate}{1}\n"
+
+	for i in $(seq ${max}); do
+		data=$(grep -A 2 "^${i}:" "${file}" | grep "^${i}:\\|^\t")
+		if [ -z "${data}" ]; then
+			printf "\\day{}{\\\\vspace{2.1cm}}\n"
+		else
+			printf "\\day{"
+			#printf "${data}\n" | tr "\n" "\t" |\
+			#	sed -e 's|[1-9][1-9]*:\t\t||' -e 's|[0-9][0-9]*:\t\t|\\dayheader{|g' \
+			#	-e 's|\t\t|}{|' -e 's|\t\t|}{}\\eventskip |g' -e 's|\t|\\eventskip|g'
+			printf "${data}" | tr "\n" "\t" |\
+				sed -e 's|^[0-9]*[0-9]:\t\t||' -e 's|\t\t|}{|'\
+				-e 's|[0-9]*[0-9]:\t\t|\\dayheader{|g' -e 's|\t\t|}{}\t|g'\
+				-e 's|\t|\\eventskip |g'
+			printf "}{}\n"
+		fi
+	done
+
+	for i in $(seq $((36-${max}-${first}))); do
+		printf "\\BlankDay\n"
+	done
+
+	printf "\\\\finishCalendar\n\\\\end{calendar}\n\\\\end{document}\n"
+}
+
+recurse() {
+	raw=$(grep -A 2 -m 1 "^every" "${file}" | grep "^every\\|^\t")
+	if [ -z "${raw}" ]; then
+		compile
+	else
+		recursor=$(printf "%s\n" "${raw}" | head -n 1 | cut -d " " -f 2)
+		number=$(printf "${recursor}" | tail -c 1)
+		frequency=$(printf "${recursor}" | head -c 1)
+		start=$(printf "%s\n" "${raw}" | head -n 1 | cut -d " " -f 3)
+		data=$(printf "%s\n" "${raw}" | grep "^\t")
+
+		printf "${start}\n${data}\n" >> "${file}"
+		for i in $(seq $((${number}-1))); do
+			printf "$((${start%%:} + (${frequency} * ${i}))):\n${data}\n" >> "${file}"
+		done
+
+		remove=$(printf "%s" "${raw}" | tr "\n" "\r")
+		cat "${file}" | tr "\n" "\r" | sed "s|${remove}||g" | tr "\r" "\n" > "${file}.tmp"
+		mv "${file}.tmp" "${file}"
+		recurse
+	fi
+}
+
+compile() {
+	id=$(shuf -i 1000-9999 | head -n 1)
+
+	parse > ${id}.tex
+	xelatex ${id}.tex
+	mv ${id}.pdf ${name}.pdf
+	rm ${id}.tex ${id}.aux ${id}.log
+}
+
+#compile
+name=${file%%.*}
+cp "${file}" ".${file}.working"
+file=".${file}.working"
+recurse
+rm "${file}"
