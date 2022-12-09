@@ -6,12 +6,14 @@
 
 This is my personal calendar system using a simple human-readable syntax file, with the power of LaTeX behind it.
 
-The LaTeX calendar.sty file is not my own. It is lisenced under [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/) credit goes to Evan A. Sultanik.
+The LaTeX calendar.sty file is not my own. It is licenced under [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/) credit goes to Evan A. Sultanik.
 
 
 # Usage
 
-`calcom FILE`
+`calcom FILE` for single month files.
+
+If you have your files named alphabetically, EG. `YYYY-MM.cal`, you can also use `make` with the Included Makefile to automatically generate a PDF of every month called `all.pdf`
 
 ## Syntax
 Each month has its own text file with the following syntax:
@@ -42,7 +44,7 @@ December 2022
 
 ```
 
-`calcom` also has support for reccuring tasks, thoguh for now they cannot span months or years, as each file defines just one month.
+`calcom` also has support for recurring tasks, though for now they cannot span months or years, as each file defines just one month.
 The syntax is as follows:
 
 ```
@@ -70,4 +72,5 @@ every 1d3 5:
 - A Posix Shell
 - calendar.sty
 
-
+Optional:
+- make
