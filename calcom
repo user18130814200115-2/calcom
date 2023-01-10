@@ -34,7 +34,7 @@ parse() {
 				sed -e 's|^[0-9]*[0-9]:\t\t||' -e 's|\t\t|}{|'\
 				-e 's|[0-9]*[0-9]:\t\t|\\dayheader{|g' -e 's|\t\t|}{}\t|g'\
 				-e 's|\t|\\eventskip |g'
-			printf "}{}\n"
+			printf "}\n"
 		fi
 	done
 
@@ -51,8 +51,8 @@ recurse() {
 		compile
 	else
 		recursor=$(printf "%s\n" "${raw}" | head -n 1 | cut -d " " -f 2)
-		number=$(printf "${recursor}" | tail -c 1)
-		frequency=$(printf "${recursor}" | head -c 1)
+		number=$(printf "${recursor}" | sed 's|[0-9][0-9]*d||g')
+		frequency=$(printf "${recursor}" | sed 's|d[0-9][0-9]*||g')
 		start=$(printf "%s\n" "${raw}" | head -n 1 | cut -d " " -f 3)
 		data=$(printf "%s\n" "${raw}" | grep "^\t")
 
