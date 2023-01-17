@@ -41,7 +41,7 @@ December 2022
 
 2:
   Details are Optional
-
+  ~
 ```
 
 `calcom` also has support for recurring tasks, though for now they cannot span months or years, as each file defines just one month.
