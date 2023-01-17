@@ -11,4 +11,5 @@ all.pdf: $(PDF)
 
 months: $(PDF)
 %.pdf: %.cal
-	calcom $<
+	calcom $< 
+

@@ -11,7 +11,7 @@ parse() {
 	month=$(date -d "1 ${head}" +"%B")
 	year=$(date -d "1 ${head}" +"%Y")
 
-	printf "\\\\documentclass[10pt]{article}\n\\\\usepackage{calendar}\n\\\\usepackage[landscape, a4paper, margin=1cm]{geometry}\n\\\\usepackage{palatino}\n\\\\begin{document}\n\\\\pagestyle{empty}\n\\\\setlength{\\\\parindent}{0pt}\n\\\\StartingDayNumber=2\n\\\\begin{center}\n\\\\textsc{\\\\LARGE ${month}}\n\\\\textsc{\\\\large ${year}}\n\\\\end{center}\n\\\\begin{calendar}{\\\\textwidth}"
+	printf "\\\\documentclass[11pt]{article}\n\\\\usepackage{calendar}\n\\\\usepackage[landscape, paperwidth=25.2cm, paperheight=35.64cm, margin=0.4cm]{geometry}\n\\\\usepackage{palatino}\n\\\\begin{document}\n\\\\pagestyle{empty}\n\\\\setlength{\\\\parindent}{0pt}\n\\\\StartingDayNumber=2\n\\\\begin{center}\n\\\\textsc{\\\\LARGE ${month}}\n\\\\textsc{\\\\large ${year}}\n\\\\end{center}\n\\\\begin{calendar}{\\\\textwidth}"
 
 
 
@@ -24,7 +24,7 @@ parse() {
 	for i in $(seq ${max}); do
 		data=$(grep -A 2 "^${i}:" "${file}" | grep "^${i}:\\|^\t")
 		if [ -z "${data}" ]; then
-			printf "\\day{}{\\\\vspace{2.1cm}}\n"
+			printf "\\day{~}{~}\n"
 		else
 			printf "\\day{"
 			#printf "${data}\n" | tr "\n" "\t" |\
