@@ -22,7 +22,7 @@ parse() {
 	printf "\\setcounter{calendardate}{1}\n"
 
 	for i in $(seq ${max}); do
-		data=$(grep -A 2 "^${i}:" "${file}" | grep "^${i}:\\|^\t")
+		data=$(grep -A 2 "^${i}:" "${file}" | grep "^${i}:\\|^\t" | sed 's/&/\\&/g')
 		if [ -z "${data}" ]; then
 			printf "\\day{~}{~}\n"
 		else
