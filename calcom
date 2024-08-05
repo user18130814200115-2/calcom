@@ -11,7 +11,7 @@ parse() {
 	month=$(date -d "1 ${head}" +"%B")
 	year=$(date -d "1 ${head}" +"%Y")
 
-	printf "\\\\documentclass[11pt]{article}\n\\\\usepackage{calendar}\n\\\\usepackage[landscape, paperwidth=25.2cm, paperheight=35.64cm, margin=0.4cm]{geometry}\n\\\\usepackage{palatino}\n\\\\begin{document}\n\\\\pagestyle{empty}\n\\\\setlength{\\\\parindent}{0pt}\n\\\\StartingDayNumber=2\n\\\\begin{center}\n\\\\textsc{\\\\LARGE ${month}}\n\\\\textsc{\\\\large ${year}}\n\\\\end{center}\n\\\\begin{calendar}{\\\\textwidth}"
+	printf "\\\\documentclass[11pt]{article}\n\\\\usepackage{calendar}\n\\\\usepackage[landscape, paperwidth=25.2cm, paperheight=35.64cm, margin=0.4cm]{geometry}\n\\\\usepackage{palatino}\n\\\\begin{document}\n\\\\hoffset=-0.85in\n\\\\voffset=-0.75in\n\\\\setbox0\\\\hbox{\\\\begin{minipage}{\\\\textwidth}\\\\pagestyle{empty}\n\\\\setlength{\\\\parindent}{0pt}\n\\\\StartingDayNumber=2\n\\\\begin{center}\n\\\\textsc{\\\\LARGE ${month}}\n\\\\textsc{\\\\large ${year}}\n\\\\end{center}\n\\\\begin{calendar}{\\\\textwidth}"
 
 
 
@@ -42,7 +42,7 @@ parse() {
 		printf "\\BlankDay\n"
 	done
 
-	printf "\\\\finishCalendar\n\\\\end{calendar}\n\\\\end{document}\n"
+	printf "\\\\finishCalendar\n\\\\end{calendar}\n\\\\end{minipage}}\n\\\\pdfpageheight=\dimexpr\\\\ht0+\\\\dp0+0.75in\\\\relax\\\\shipout\\\\box0\\\\stop\n"
 }
 
 recurse() {
@@ -70,15 +70,17 @@ recurse() {
 }
 
 compile() {
-	id=$(shuf -i 1000-9999 | head -n 1)
+	#id=$(shuf -i 1000-9999 | head -n 1)
 
-	parse > ${id}.tex
-	xelatex ${id}.tex
-	mv ${id}.pdf ${name}.pdf
-	rm ${id}.tex ${id}.aux ${id}.log
+	echo "Parsing ${name}..."
+	parse > compile/${name}.tex
+	echo "Compiling ${name}..."
+	xelatex -output-directory compile/ compile/${name}.tex > /dev/null
+	mv compile/${name}.pdf ${name}.pdf
 }
 
 #compile
+mkdir compile 2> /dev/null
 name=${file%%.*}
 cp "${file}" ".${file}.working"
 file=".${file}.working"
