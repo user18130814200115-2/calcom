@@ -9,7 +9,7 @@ The LaTeX calendar.sty file is not my own. It is licenced under [CC BY-NC-SA
 Sultanik.
 
 
-# Usage
+## Usage
 
 `calcom FILE` for single month files.
 
@@ -27,11 +27,9 @@ Month Year
 
 day:
   Name
-  Details
-  
-day:
-  Name
-  Details
+  [Details]
+  [...]
+
 ```
 
 And example may be:
@@ -45,7 +43,12 @@ December 2022
 
 2:
   Details are Optional
-  ~
+
+10:
+	Event with many details
+	Time
+	Location
+	Summary
 ```
 
 `calcom` also has support for recurring tasks, though for now they cannot span
@@ -68,6 +71,18 @@ every 7d5 1:
 every 1d3 5:
   Daily task
   Between 5th and 8th
+```
+
+## ICS usage
+
+Calcom also provides a script to convert your ics files to calcom files. This
+script will produce output data in the following format:
+```
+Day:
+	DESCRIPTION
+	DTSTART[HH:MM] - DTEND[HH:MM]
+	LOCATION
+	SUMMARY
 ```
 
 ## Requirements
