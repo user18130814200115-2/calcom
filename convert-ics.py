@@ -32,7 +32,7 @@ for event in list(calendar.timeline):
 
 for month in events:
 	data = ''
-	data += arrow.get(month).format('YYYY MMMM\n')
+	data += arrow.get(month).format('MMMM YYYY\n')
 
 	for day in events[month]:
 		data += events[month][day]['day'] + ':\n\t'
