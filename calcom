@@ -22,7 +22,8 @@ parse() {
 	printf "\\setcounter{calendardate}{1}\n"
 
 	for i in $(seq ${max}); do
-		data=$(grep -A 2 "^${i}:" "${file}" | grep "^${i}:\\|^\t" | sed 's/&/\\&/g')
+		data=$(cat test.cal | tr '\n' '\r' | sed -e 's/\r\r*/\r/g' -e 's/\r\t/\t/g' | tr '\r' '\n' | sed -e 's/$/\t~/g' -e 's/:/:\n/g' -e 's/\t/\r/' -e 's/\t/\n\r/' -e 's/\t/\\\\\\\\/g' -e 's/\r/\t/g' -e 's/\\\\\\\\~//g' |\
+		grep -A 2 "^${i}:" | grep "^${i}:\\|^\t" | sed 's/&/\\&/g')
 		if [ -z "${data}" ]; then
 			printf "\\day{~}{~}\n"
 		else
@@ -75,7 +76,7 @@ compile() {
 	echo "Parsing ${name}..."
 	parse > compile/${name}.tex
 	echo "Compiling ${name}..."
-	xelatex -output-directory compile/ compile/${name}.tex > /dev/null
+	xelatex -output-directory compile/ compile/${name}.tex
 	mv compile/${name}.pdf ${name}.pdf
 }
 
