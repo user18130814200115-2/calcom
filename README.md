@@ -1,23 +1,16 @@
 # Calcom
 
-Calcom allows you to make beautiful pdf calendars using a simple human-readable
-syntax. The calendars are compiled with LaTex. A converter is also provided to
-import `ics` files
+Convert your calendars into beatiful pdfs using LaTeX.
 
-The LaTeX calendar.sty file is not my own. It is licenced under [CC BY-NC-SA
-3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/) credit goes to Evan A.
-Sultanik.
+Calcom can generate pdfs from ics files or from its custom human-readable synax.
 
 
 ## Usage
 
-`calcom FILE` for single month files.
+`calcom FILES` where FILES is a lost containing ics files or files using `calcom`
+custom syntax as described below. You can mix the two syntaxes.
 
-If you have your files named alphabetically, EG. `YYYY-MM.cal`, you can also use
-`make` with the Included Makefile to automatically generate a PDF of every month
-called `all.pdf`
-
-'convert-ics.py FILE' for importing ics files
+All processed PDFs will be merged at the end into one combined one.
 
 ## Syntax
 Each month has its own text file with the following syntax:
@@ -50,6 +43,7 @@ December 2022
 	Location
 	Summary
 ```
+# Currently unsupported (regression)
 
 `calcom` also has support for recurring tasks, though for now they cannot span
 months or years, as each file defines just one month.
@@ -73,28 +67,16 @@ every 1d3 5:
   Between 5th and 8th
 ```
 
-## ICS usage
-
-Calcom also provides a script to convert your ics files to calcom files. This
-script will produce output data in the following format:
-```
-Day:
-	DESCRIPTION
-	DTSTART[HH:MM] - DTEND[HH:MM]
-	LOCATION
-	SUMMARY
-```
-
 ## Requirements
-### Calcom
-- Gnu Coreutils
-- A working (xe)latex instance
-- A Posix Shell
-- calendar.sty
+- Python 3
+- Arrow
+- multiprocessing (optional)
+- ics (optional)
+- pypdf (optional)
 
-Optional:
-- make
 
-### convert-ics.py
-- python3
-- ics python library
+# Licences and attribution
+
+The LaTeX calendar style is not my own. It is licenced under [CC BY-NC-SA
+3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/) credit goes to Evan A.
+Sultanik.
