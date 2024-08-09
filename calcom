@@ -80,9 +80,9 @@ def ParseICS(filename, CalEvents):
 		if time != '00:00 - 00:00':
 			CalEvents[month][day][CalEvents[month][day]['amount']].append(time)
 		if event.location != None:
-			CalEvents[month][day][CalEvents[month][day]['amount']].append('; '.join(event.location.split('\n')))
+			CalEvents[month][day][CalEvents[month][day]['amount']].append('\\newline ~'.join(event.location.split('\n')))
 		if event.description != None:
-			CalEvents[month][day][CalEvents[month][day]['amount']].append('; '.join(event.description.split('\n')))
+			CalEvents[month][day][CalEvents[month][day]['amount']].append('\\newline ~'.join(event.description.split('\n')))
 
 	return CalEvents
 
@@ -118,9 +118,9 @@ def OutputTEX(CalEvents):
 			data += '\\day{'
 			for event in range(1, CalEvents[day]['amount'] + 1):
 				if event == 1:
-					data += (CalEvents[day][event][0] + '}{~' + '\\\\~'.join(CalEvents[day][event][1:])).translate(str.maketrans({"&":  r"\&", "$":  r"\$"}))
+					data += (CalEvents[day][event][0] + '}{~' + '\\newline ~'.join(CalEvents[day][event][1:])).translate(str.maketrans({"&":  r"\&", "$":  r"\$"}))
 				else:
-					data += ('\\eventskip \\dayheader{' + CalEvents[day][event][0] + '}{}\\eventskip ' + '\\\\~'.join(CalEvents[day][event][1:])).translate(str.maketrans({"&":  r"\&", "$":  r"\$"}))
+					data += ('\\eventskip \\dayheader{' + CalEvents[day][event][0] + '}{}\\eventskip ' + '\\newline ~'.join(CalEvents[day][event][1:])).translate(str.maketrans({"&":  r"\&", "$":  r"\$"}))
 			if CalEvents[day]['amount'] == 0:
 				data += '~}{~'
 			data += '}\n'
