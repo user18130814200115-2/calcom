@@ -118,7 +118,7 @@ def OutputTEX(CalEvents):
 			data += '\\day{'
 			for event in range(1, CalEvents[day]['amount'] + 1):
 				if event == 1:
-					data += (CalEvents[day][event][0] + '}{~' + '\\newline ~'.join(CalEvents[day][event][1:])).translate(str.maketrans({"&":  r"\&", "$":  r"\$"}))
+					data += (CalEvents[day][event][0] + '}{' + '~\\newline~'.join(CalEvents[day][event][1:])).translate(str.maketrans({"&":  r"\&", "$":  r"\$"}))
 				else:
 					data += ('\\eventskip \\dayheader{' + CalEvents[day][event][0] + '}{}\\eventskip ' + '\\newline ~'.join(CalEvents[day][event][1:])).translate(str.maketrans({"&":  r"\&", "$":  r"\$"}))
 			if CalEvents[day]['amount'] == 0:
