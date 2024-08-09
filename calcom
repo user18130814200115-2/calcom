@@ -12,8 +12,8 @@ def ParseCAL(filename, CalEvents):
 					if line[0] != '\t': # Non-indented lines are day keys
 						RecurseCAL(recursor, CalEvents)
 						if ' ' in line: # This is a recurring event
-							day = int(line.split(' ')[1][:-2])
-							recursor = [line.split(' '), month, CalEvents[month][day]['amount'] + 1]
+							day = int(line.split(' ')[2][:-2])
+							recursor = [line.split(' ')[1:], month, CalEvents[month][day]['amount'] + 1]
 						else:
 							day = int(line[:-2])
 						CalEvents[month][day]['amount'] += 1
@@ -55,8 +55,6 @@ def RecurseCAL(recursor, CalEvents):
 
 			CalEvents[targetMonth][targetDay]['amount'] += 1
 			CalEvents[targetMonth][targetDay][CalEvents[targetMonth][targetDay]['amount']] = CalEvents[month][day][eventKey]
-
-			print(str(targetDay) + " " + targetMonth )
 
 		recursor = []
 
