@@ -3,12 +3,19 @@
 def ParseCAL(filename, CalEvents):
 	print("Parsing " + filename +  " as a calcom file")
 
+	recursor = []
+
 	with open(filename) as file:
 		for index, line in enumerate(file):
 			if index != 0:
 				if line != '\n': # Discard Empty lines
 					if line[0] != '\t': # Non-indented lines are day keys
-						day = int(line[:-2])
+						RecurseCAL(recursor, CalEvents)
+						if ' ' in line: # This is a recurring event
+							day = int(line.split(' ')[1][:-2])
+							recursor = [line.split(' '), month, CalEvents[month][day]['amount'] + 1]
+						else:
+							day = int(line[:-2])
 						CalEvents[month][day]['amount'] += 1
 						CalEvents[month][day][CalEvents[month][day]['amount']] = []
 					else:
@@ -17,7 +24,44 @@ def ParseCAL(filename, CalEvents):
 				month = line[:-1]
 				if month not in CalEvents:
 					CalEvents[month] = CalEventsInit(month)
+		RecurseCAL(recursor, CalEvents)
 	return CalEvents	
+
+def RecurseCAL(recursor, CalEvents):
+	if recursor != []:
+		month = recursor[1]
+		day = int(recursor[0][1][:-2])
+		if 'd' in recursor [0][0]:
+			frequency = int(recursor[0][0].split('d')[0])
+			number = int(recursor[0][0].split('d')[1])
+			frequencyType = 'days'
+		elif 'm' in recursor [0][0]:
+			frequency = int(recursor[0][0].split('m')[0])
+			number = int(recursor[0][0].split('m')[1])
+			frequencyType = 'months'
+		else:
+			print('Unknown repeating event type \"' + recursor[0][0] + '\" not repeating')
+			return
+			
+		eventKey = recursor[2]
+
+		for index in range(1, number + 1):
+			startArrow = arrow.get(str("{:02d}".format(day)) + ' ' + month, 'DD MMMM YYYY')
+			targetArrow = startArrow.dehumanize('in ' + str(frequency * index)  + ' ' + frequencyType)
+			
+			targetDay = int(targetArrow.format('DD'))
+			targetMonth = targetArrow.format('MMMM YYYY')
+
+			if targetMonth not in CalEvents:
+				CalEvents[targetMonth] = CalEventsInit(targetMonth)
+
+
+			CalEvents[targetMonth][targetDay]['amount'] += 1
+			CalEvents[targetMonth][targetDay][CalEvents[targetMonth][targetDay]['amount']] = CalEvents[month][day][eventKey]
+
+			print(str(targetDay) + " " + targetMonth )
+
+		recursor = []
 
 def ParseICS(filename, CalEvents):
 	print("Parsing " + filename +  " as an ICS file")
@@ -145,10 +189,6 @@ def main():
 	for month in CalEvents:
 		TexData = OutputTEX(CalEvents[month])
 		outputFileName = arrow.get(month, 'MMMM YYYY').format('YYYY-MM')
-	#	with open(outputFileName, 'a+') as outputFile:
-	#		outputFile.write(TexData)
-	#		outputFile.truncate()
-	#
 		OutputPDFs.append(compileDirectory + outputFileName + '.pdf')
 		if asyncronous:
 			ProcessingStack.append(multiprocessing.Process(target=CompilePDF, args=(TexData, outputFileName, compileDirectory)))
@@ -158,9 +198,10 @@ def main():
 	while len(ProcessingStack) > 0:
 		if len(multiprocessing.active_children()) < jobs:
 			ProcessingStack[0].start()
-			if len(ProcessingStack) == 1:
-				ProcessingStack[0].join()
 			ProcessingStack.pop(0)
+	
+	while len(multiprocessing.active_children()) > 0:
+		multiprocessing.active_children()[0].join()
 
 
 	MergePDFs(sorted(OutputPDFs), 'all.pdf')
