@@ -11,6 +11,11 @@ def ParseCAL(filename, CalEvents):
 				if line != '\n': # Discard Empty lines
 					if line[0] != '\t': # Non-indented lines are day keys
 						RecurseCAL(recursor, CalEvents)
+						if line[0:3] == '---': # New month is starting
+							month = next(file)[:-1]
+							if month not in CalEvents:
+								CalEvents[month] = CalEventsInit(month)
+							continue
 						if ' ' in line: # This is a recurring event
 							day = int(line.split(' ')[2][:-2])
 							recursor = [line.split(' ')[1:], month, CalEvents[month][day]['amount'] + 1]
