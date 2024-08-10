@@ -64,6 +64,7 @@ def RecurseCAL(recursor, CalEvents):
 		frequencyType = recursor[1]
 		if len(frequencyType) == 1:
 			frequencyType = frequencyType.translate(str.maketrans({"d":  r"days", "m":  r"months", "y": r"years"}))
+			print('[WARNING] You are using outdated syntax, please use \"every frequency type number\" instead of \"every ' + ''.join(recursor[0:3]) + '\"')
 		number = int(recursor[2])
 		eventKey = int(recursor[5])
 
