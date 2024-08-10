@@ -4,32 +4,40 @@ def ParseCAL(filename, CalEvents):
 	print("Parsing " + filename +  " as a calcom file")
 
 	recursor = []
+	fileData = []
+	skipNext = False
 
 	with open(filename) as file:
-		for index, line in enumerate(file):
-			if index != 0:
-				if line != '\n': # Discard Empty lines
-					if line[0] != '\t': # Non-indented lines are day keys
-						RecurseCAL(recursor, CalEvents)
-						if line[0:3] == '---': # New month is starting
-							month = next(file)[:-1]
-							if month not in CalEvents:
-								CalEvents[month] = CalEventsInit(month)
-							continue
-						if ' ' in line: # This is a recurring event
-							day = int(line.split(' ')[2][:-2])
-							recursor = [line.split(' ')[1:], month, CalEvents[month][day]['amount'] + 1]
-						else:
-							day = int(line[:-2])
-						CalEvents[month][day]['amount'] += 1
-						CalEvents[month][day][CalEvents[month][day]['amount']] = []
-					else:
-						CalEvents[month][day][CalEvents[month][day]['amount']].append(line[1:-1])
+		for line in file:
+			if line[0] != '#' and line[0] != '\n':
+				fileData.append(line)
+	for index, line in enumerate(fileData):
+		if skipNext:
+			skipNext = False
+			continue
+		if index != 0:
+			if line[0] != '\t': # Non-indented lines are day keys
+				RecurseCAL(recursor, CalEvents)
+				if line[0:3] == '---': # New month is starting
+					month = fileData[index + 1][:-1]
+					skipNext = True
+					if month not in CalEvents:
+						CalEvents[month] = CalEventsInit(month)
+					continue
+				if 'every' in line: # This is a recurring event
+					day = int(line.split(' ')[2][:-2])
+					recursor = [line.split(' ')[1:], month, CalEvents[month][day]['amount'] + 1]
+				else:
+					day = int(line[:-2])
+				CalEvents[month][day]['amount'] += 1
+				CalEvents[month][day][CalEvents[month][day]['amount']] = []
 			else:
-				month = line[:-1]
-				if month not in CalEvents:
-					CalEvents[month] = CalEventsInit(month)
-		RecurseCAL(recursor, CalEvents)
+				CalEvents[month][day][CalEvents[month][day]['amount']].append(line[1:-1])
+		else:
+			month = line[:-1]
+			if month not in CalEvents:
+				CalEvents[month] = CalEventsInit(month)
+	RecurseCAL(recursor, CalEvents)
 	return CalEvents	
 
 def RecurseCAL(recursor, CalEvents):
@@ -176,6 +184,8 @@ def main():
 	ProcessingStack = []
 	jobs = max(1, multiprocessing.cpu_count() - 1)
 
+	outputTEX = True
+
 	for input_file in sys.argv[1:]:
 		if input_file[-3:] == 'ics':
 			CalEvents = ParseICS(input_file, CalEvents)
@@ -189,6 +199,12 @@ def main():
 	for month in CalEvents:
 		TexData = OutputTEX(CalEvents[month])
 		outputFileName = arrow.get(month, 'MMMM YYYY').format('YYYY-MM')
+
+		if outputTEX: 
+			with open(outputFileName + '.tex', 'a+') as file:
+				file.write(TexData)
+				file.truncate()
+
 		OutputPDFs.append(compileDirectory + outputFileName + '.pdf')
 		if asyncronous:
 			ProcessingStack.append(multiprocessing.Process(target=CompilePDF, args=(TexData, outputFileName, compileDirectory)))
