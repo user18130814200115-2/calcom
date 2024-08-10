@@ -29,8 +29,12 @@ def ParseCAL(filename, CalEvents):
 					#recursor = [line.split(' ')[1:], month, CalEvents[month][day]['amount'] + 1]
 
 					line = line.split(' ')
-					day = int(line[4][:-2])
-					recursor = line[1:] + [month, CalEvents[month][day]['amount'] + 1]
+					day = int(line[-1][:-2])
+					if len(line) < 4:
+						print('You are using outdated syntax, please use \"frequency type number\" instead of ' + line[1])
+						recursor = [line[1][0], line[1][1], line[1][2], line[-1], month, CalEvents[month][day]['amount'] + 1]
+					else:
+						recursor = line[1:] + [month, CalEvents[month][day]['amount'] + 1]
 				else:
 					day = int(line[:-2])
 				CalEvents[month][day]['amount'] += 1
@@ -50,13 +54,16 @@ def RecurseCAL(recursor, CalEvents):
 		day = int(recursor[3][:-2])
 
 		try:
-			frequencyType = [e for e in ['days', 'months', 'years'] if e in recursor[2]]
+			frequencyType = [e for e in ['days', 'months', 'years', 'd', 'm', 'y'] if e in recursor[1]]
 		except:
 			print('Unknown repeating event type \"' + recursor[2] + '\" not repeating')
 			return
 
+
 		frequency = int(recursor[0])
 		frequencyType = recursor[1]
+		if len(frequencyType) == 1:
+			frequencyType = frequencyType.translate(str.maketrans({"d":  r"days", "m":  r"months", "y": r"years"}))
 		number = int(recursor[2])
 		eventKey = int(recursor[5])
 
