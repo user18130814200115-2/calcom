@@ -25,8 +25,12 @@ def ParseCAL(filename, CalEvents):
 						CalEvents[month] = CalEventsInit(month)
 					continue
 				if 'every' in line: # This is a recurring event
-					day = int(line.split(' ')[2][:-2])
-					recursor = [line.split(' ')[1:], month, CalEvents[month][day]['amount'] + 1]
+					#day = int(line.split(' ')[2][:-2])
+					#recursor = [line.split(' ')[1:], month, CalEvents[month][day]['amount'] + 1]
+
+					line = line.split(' ')
+					day = int(line[4][:-2])
+					recursor = line[1:] + [month, CalEvents[month][day]['amount'] + 1]
 				else:
 					day = int(line[:-2])
 				CalEvents[month][day]['amount'] += 1
@@ -38,22 +42,25 @@ def ParseCAL(filename, CalEvents):
 			if month not in CalEvents:
 				CalEvents[month] = CalEventsInit(month)
 	RecurseCAL(recursor, CalEvents)
+	print(CalEvents)
 	return CalEvents	
 
 def RecurseCAL(recursor, CalEvents):
+	print(recursor)
 	if recursor != []:
-		month = recursor[1]
-		day = int(recursor[0][1][:-2])
+		month = recursor[4]
+		day = int(recursor[3][:-2])
+
 		try:
-			frequencyType = [e for e in ['days', 'months', 'years', 'd', 'm', 'y'] if e in recursor[0][0]][0]
+			frequencyType = [e for e in ['days', 'months', 'years'] if e in recursor[2]]
 		except:
-			print('Unknown repeating event type \"' + recursor[0][0] + '\" not repeating')
+			print('Unknown repeating event type \"' + recursor[2] + '\" not repeating')
 			return
 
-		frequency = int(recursor[0][0].split(frequencyType)[0])
-		number = int(recursor[0][0].split(frequencyType)[1])
-		frequencyType = frequencyType.translate(str.maketrans({"d":  r"days", "m":  r"months", "y": r"years"}))
-		eventKey = recursor[2]
+		frequency = int(recursor[0])
+		frequencyType = recursor[1]
+		number = int(recursor[2])
+		eventKey = int(recursor[5])
 
 		for index in range(1, number + 1):
 			startArrow = arrow.get(str("{:02d}".format(day)) + ' ' + month, 'DD MMMM YYYY')
@@ -65,10 +72,8 @@ def RecurseCAL(recursor, CalEvents):
 			if targetMonth not in CalEvents:
 				CalEvents[targetMonth] = CalEventsInit(targetMonth)
 
-
 			CalEvents[targetMonth][targetDay]['amount'] += 1
 			CalEvents[targetMonth][targetDay][CalEvents[targetMonth][targetDay]['amount']] = CalEvents[month][day][eventKey]
-
 		recursor = []
 
 def ParseICS(filename, CalEvents):
@@ -128,7 +133,7 @@ def OutputTEX(CalEvents):
 				if event == 1:
 					data += (CalEvents[day][event][0] + '}{' + '~\\newline~'.join(CalEvents[day][event][1:])).translate(str.maketrans({"&":  r"\&", "$":  r"\$"}))
 				else:
-					data += ('\\eventskip \\dayheader{' + CalEvents[day][event][0] + '}{}\\eventskip ' + '\\newline ~'.join(CalEvents[day][event][1:])).translate(str.maketrans({"&":  r"\&", "$":  r"\$"}))
+					data += ('~\\eventskip \\dayheader{' + CalEvents[day][event][0] + '}{}~\\eventskip ' + '\\newline ~'.join(CalEvents[day][event][1:])).translate(str.maketrans({"&":  r"\&", "$":  r"\$"}))
 			if CalEvents[day]['amount'] == 0:
 				data += '~}{~'
 			data += '}\n'
@@ -141,7 +146,7 @@ def CompilePDF(TexData, outputFileName, compileDirectory):
 	print('Compiling PDF for ' + outputFileName)
 	#if os.system('xelatex -halt-on-error -output-directory=' + compileDirectory + ' ' + outputFileName + ' > /dev/null') != 0:
 	#	print('Something went wrong while compiling ' + month)
-	if os.system('xelatex -output-directory=' + compileDirectory + ' -jobname=' + outputFileName  + ' \"' + '\" \"'.join(TexData.split('\n')) + '\" > /dev/null' ) != 0:
+	if os.system('xelatex -halt-on-error -output-directory=' + compileDirectory + ' -jobname=' + outputFileName  + ' \"' + '\" \"'.join(TexData.split('\n')) + '\" > /dev/null' ) != 0:
 		print('Something went wrong while compiling ' + outputFileName)
 
 def MergePDFs(OutputPDFs, CombinedFileName):
@@ -198,18 +203,18 @@ def main():
 
 	for month in CalEvents:
 		TexData = OutputTEX(CalEvents[month])
+		
 		outputFileName = arrow.get(month, 'MMMM YYYY').format('YYYY-MM')
-
-		if outputTEX: 
-			with open(outputFileName + '.tex', 'a+') as file:
-				file.write(TexData)
-				file.truncate()
-
 		OutputPDFs.append(compileDirectory + outputFileName + '.pdf')
 		if asyncronous:
 			ProcessingStack.append(multiprocessing.Process(target=CompilePDF, args=(TexData, outputFileName, compileDirectory)))
 		else:
 			CompilePDF(TexData, outputFileName, compileDirectory)
+
+		if outputTEX: 
+			with open(outputFileName + '.tex', 'w+') as file:
+				file.write(TexData)
+				file.truncate()
 	
 	while len(ProcessingStack) > 0:
 		if len(multiprocessing.active_children()) < jobs:
