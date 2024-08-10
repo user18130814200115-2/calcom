@@ -42,11 +42,9 @@ def ParseCAL(filename, CalEvents):
 			if month not in CalEvents:
 				CalEvents[month] = CalEventsInit(month)
 	RecurseCAL(recursor, CalEvents)
-	print(CalEvents)
 	return CalEvents	
 
 def RecurseCAL(recursor, CalEvents):
-	print(recursor)
 	if recursor != []:
 		month = recursor[4]
 		day = int(recursor[3][:-2])
