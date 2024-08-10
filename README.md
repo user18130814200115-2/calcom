@@ -16,102 +16,48 @@ All processed PDFs will be merged at the end. Single month PDFs will be
 available in the `.compile/` directory.
 
 ## Syntax
-Each month has its own text file with the following syntax:
+
+A `calcom` file input file must be written according to the following syntax.
+
+Lines starting with a `#` are ignored, so are empty lines.
+
+The first line (aside from empty or comment lines)  must be the name of a month
+followed by the year.
+```
+August 2023
+```
+
+Regular events are defined by first putting the day number on which they occur.
+The following lines **must be indented with tabs, not spaces** and contain
+first the name, followed by an arbitrary number of lines with details.
+```
+August 2023
+
+# Event on the first of august
+1:
+	Name
+	Details
+```
+
+Recurring events are started with the keyword `every`. This keyword is followed
+by the frequency, type, and number of repetitions. Finally, the starting day is
+put, followed by a colon. The type can be any of: days, months, years.
 
 ```
-Month Year
+August 2023
 
-day:
-  Name
-  [Details]
-  [...]
-
----
-Month Year
-
-day:
+# Event on the first of August
+1:
+	Name
+	Details
 	...
 
+# Reccuring event starting on the second of August
+every 2days5 2:
+	Name
+	Details
+	...
 ```
-
-And example may be:
-
-```
-December 2022
-
-9:
-	GitHub release
-	Release version 1 of calcom
-
-2:
-	Details are Optional
-
----
-January 2023
-
-1:
-	Event with many details
-	Time
-	Location
-	Summary
-```
-
-calcom's calendar syntax also has support for recurring events. The syntax is
-as follows:
-
-```
-every [frequency][type][number] [starting day]:
-	[Details]
-	[Details]
-```
-[frequency] is a number determining how many instances of [type] need to pass
-before the event repeats. `7days5` will repeat every 7 days for example.
-
-[type] can be one of 'd', 'm', 'y', 'days', 'months', 'years' and determines
-what needs to pass before the event repeats.
-
-[number] is the number of repetitions. 1 Repetition will result in 2 events,
-the original and the repetition.
-
-For example:
-```
-August 2022
-
-every 7days5 1:
-	This event will repeat every 7 days starting from the 1st of August
-	This will happen 5 times
-  
-every 1d3 5:
-	This event will repeat every day starting from the 5th of August
-	This will happpen 3 times
-
-every 1m4 6:
-	This event repeats every month on the 6th starting in August
-	This will happen 6 times
-
-every 1mmonths4 6:
-	This event repeats every month on the 6th starting in August
-	This will happen 6 times
----
-September 2022
-
-every 1years5 10:
-	This event repeats every year on the 10th of September
-	This will happen 5 times.
-	
-```
-
-This can also be used to generate empty calendars, or to ensure the presence of
-pages for months with no events.
-
-```
-January 2024
-every 1months12:
-	~
-	~
-```
-Generates a full calendar for 2024
-
 ## Requirements
 - Python 3
 - Arrow
