@@ -53,7 +53,7 @@ def RecurseCAL(recursor, CalEvents):
 		day = int(recursor[3][:-2])
 
 		try:
-			frequencyType = [e for e in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',  'days', 'months', 'years', 'd', 'm', 'y'] if e in recursor[1]][0]
+			frequencyType = [e for e in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',  'days', 'weeks', 'months', 'years', 'd', 'm', 'y'] if e in recursor[1]][0]
 		except:
 			print('Unknown repeating event type \"' + recursor[1] + '\" not repeating')
 			return
