@@ -19,13 +19,31 @@ available in the `.compile/` directory.
 
 A `calcom` file input file must be written according to the following syntax.
 
+### Comments
+
 Lines starting with a `#` are ignored, so are empty lines.
+
+### Starting a month
 
 The first line (aside from empty or comment lines)  must be the name of a month
 followed by the year.
 ```
 August 2023
 ```
+
+A new month can be started by writing at least 3 dashes (-) and putting the
+Month on the following line
+```
+August 2023
+
+---
+September 2023
+
+-------------------------------------------
+June 1984
+```
+
+### Static Events
 
 Regular events are defined by first putting the day number on which they occur.
 The following lines **must be indented with tabs, not spaces** and contain
@@ -37,11 +55,19 @@ August 2023
 1:
 	Name
 	Details
+
+2:
+	Name
+	Details
+	Details
+	Details
 ```
+
+### Recurring events
 
 Recurring events are started with the keyword `every`. This keyword is followed
 by the frequency, type, and number of repetitions. Finally, the starting day is
-put, followed by a colon. The type can be any of: days, months, years.
+put, followed by a colon. The type can be any of: days, weeks,  months, years.
 
 ```
 August 2023
@@ -53,11 +79,29 @@ August 2023
 	...
 
 # Reccuring event starting on the second of August
-every 2days5 2:
+every 2 days 5 2:
 	Name
 	Details
 	...
 ```
+You can also have events on specific weekdays every month, such as the first
+Monday, or second Friday.
+```
+# every 1st Monday for the next 5 months
+every 1 Monday 5 1:
+	Name
+	Details
+	....
+
+# Every 2nd Friday for the next 5 months
+every 2 Friday 5 9:
+	Name
+	Details
+	...
+
+```
+
+
 ## Requirements
 - Python 3
 - Arrow
