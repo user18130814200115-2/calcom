@@ -18,6 +18,7 @@ def ParseCAL(filename, CalEvents):
 		if index != 0:
 			if line[0] != '\t': # Non-indented lines are day keys
 				RecurseCAL(recursor, CalEvents)
+				recursor = []
 				if line[0:3] == '---': # New month is starting
 					month = fileData[index + 1][:-1]
 					skipNext = True
@@ -43,6 +44,7 @@ def ParseCAL(filename, CalEvents):
 			if month not in CalEvents:
 				CalEvents[month] = CalEventsInit(month)
 	RecurseCAL(recursor, CalEvents)
+	recursor = []
 	return CalEvents	
 
 def RecurseCAL(recursor, CalEvents):
@@ -79,7 +81,6 @@ def RecurseCAL(recursor, CalEvents):
 
 			CalEvents[targetMonth][targetDay]['amount'] += 1
 			CalEvents[targetMonth][targetDay][CalEvents[targetMonth][targetDay]['amount']] = CalEvents[month][day][eventKey]
-		recursor = []
 
 def ParseICS(filename, CalEvents):
 	print("Parsing " + filename +  " as an ICS file")
