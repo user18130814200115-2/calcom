@@ -17,7 +17,8 @@ available in the `.compile/` directory.
 
 ## Syntax
 
-A `calcom` file input file must be written according to the following syntax.
+A `calcom` file input file must be written according to the following syntax
+(see `examples` for more):
 
 ### Comments
 
