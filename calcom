@@ -87,7 +87,7 @@ def ParseICS(filename, CalEvents):
 	with open(filename) as file:
 		calendar = Calendar(file.read())
 	
-	for event in calendar.events:
+	for event in sorted(calendar.events, key=lambda event: event.begin):
 		month = event.begin.format('MMMM YYYY')
 		day = int(event.begin.format('DD'))
 		time = event.begin.format('HH:mm') + ' - ' + event.end.format('HH.mm')
