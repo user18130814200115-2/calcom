@@ -190,12 +190,14 @@ except:
 		print('[WARNING} Failed to load Python Library \"pyPDF\". Output PDF\'s will not be merged.')
 
 def main():
+	outputTEX = False
+
 	CalEvents = {}
 	OutputPDFs = []
 	ProcessingStack = []
 	jobs = max(1, multiprocessing.cpu_count() - 1)
 
-	outputTEX = True
+	finalName = '-'.join([e.split('.')[0] for e in sys.argv[1:]]) + '.pdf'
 
 	for input_file in sys.argv[1:]:
 		if input_file[-3:] == 'ics':
@@ -231,7 +233,7 @@ def main():
 		multiprocessing.active_children()[0].join()
 
 
-	MergePDFs(sorted(OutputPDFs), 'all.pdf')
+	MergePDFs(sorted(OutputPDFs), finalName)
 
 	
 
