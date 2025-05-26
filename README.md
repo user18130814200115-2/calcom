@@ -1,3 +1,11 @@
+# Migrated
+
+This repository has been migrated to
+[codeberg](https://codeberg.org/User18130814200115/calcom). The GitHub version
+is now archived and will no-longer receive updates.
+
+
+
 # Calcom
 
 Convert your calendars into beatiful pdfs using LaTeX.
